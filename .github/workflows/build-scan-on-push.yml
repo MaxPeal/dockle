@@ -1,0 +1,13 @@
+on: [push]
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+
+    - run: docker build . -t ${{ GITHUB_REPOSITORY }}:${{ github.sha }}
+      
+    - uses: Azure/container-scan@v0
+      with:
+        image-name: ${{ GITHUB_REPOSITORY }}:${{ github.sha }}
