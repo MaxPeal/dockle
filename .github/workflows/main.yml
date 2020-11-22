@@ -1,8 +1,12 @@
 name: Scan the target image with trivy
+
 on:
   push:
+  pull_request:
   schedule:
-      - cron:  '26 1 * * *'
+    - cron: '26 1 * * 1'
+  watch:
+    types: [started]
 jobs:
   scan:
     name: Scan via trivy
@@ -14,13 +18,13 @@ jobs:
       - name: detect a target image tag
         id: target
         run: echo ::set-output name=ver::$(
-            docker run --rm goodwithtech/dockertags -contain $FILTER -limit 1 -format json $IMAGE
+            docker run --rm goodwithtech/dockertags -contain $FILTER -format json $IMAGE
             | jq -r .[0].tags[0]
             )
       - name: detect a trivy image tag
         id: trivy
         run: echo ::set-output name=ver::$(
-            docker run --rm goodwithtech/dockertags -limit 1 -format json aquasec/trivy
+            docker run --rm goodwithtech/dockertags -format json aquasec/trivy
             | jq -r .[0].tags[0]
             )
       - name: check tags
