@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE: goodwithtech/dockle # target image name
-      FILTER: v0.2    # pattern : /*v0.2*/
+      #FILTER: v0.2    # pattern : /*v0.2*/
+      FILTER: .    # pattern : /*.*/
     steps:
       - name: detect a target image tag
         id: target
@@ -24,7 +25,7 @@ jobs:
       - name: detect a trivy image tag
         id: trivy
         run: echo ::set-output name=ver::$(
-            docker run --rm goodwithtech/dockertags -format json aquasec/trivy
+            docker run --rm goodwithtech/dockertags -contain $FILTER -format json aquasec/trivy
             | jq -r .[0].tags[0]
             )
       - name: check tags
@@ -35,3 +36,11 @@ jobs:
         run: docker run aquasec/trivy:${{ steps.trivy.outputs.ver }}
           --cache-dir /var/lib/trivy --exit-code 1 --no-progress
           $IMAGE:${{ steps.target.outputs.ver }}
+      - name: check tag latest
+        run: |
+          echo trivy ${{ steps.trivy.outputs.ver }}
+          echo $IMAGE latest
+      - name: scan the image with trivy
+        run: docker run aquasec/trivy:${{ steps.trivy.outputs.ver }}
+          --cache-dir /var/lib/trivy --exit-code 1 --no-progress
+          $IMAGE:latest
