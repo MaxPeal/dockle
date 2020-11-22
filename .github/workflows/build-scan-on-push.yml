@@ -6,8 +6,8 @@ jobs:
     steps:
     - uses: actions/checkout@master
 
-    - run: docker build . -t ${{ github.repository }}:${{ github.sha }}
+    - run: docker build . -t ${{ github.sha }}
       
     - uses: Azure/container-scan@v0
       with:
-        image-name: ${{ github.repository }}:${{ github.sha }}
+        image-name: ${{ github.sha }}
